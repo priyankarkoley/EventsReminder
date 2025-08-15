@@ -71,6 +71,7 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
     }
   }, [])
 
+  //
   const handleAddEvent = async (data: EventFormData) => {
     try {
       const newEvent = await createEvent(data)
