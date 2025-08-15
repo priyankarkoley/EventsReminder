@@ -26,7 +26,7 @@ export default function LoginForm() {
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
@@ -48,12 +48,18 @@ export default function LoginForm() {
           })
         }
       } else {
+        if (data.session) {
+          document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; samesite=lax`
+          document.cookie = `sb-refresh-token=${data.session.refresh_token}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`
+        }
+
         toast({
           title: "Success",
           description: "Logged in successfully!",
         })
-        router.push("/")
-        router.refresh()
+
+        // Force a hard refresh to ensure middleware picks up the session
+        window.location.href = "/"
       }
     } catch (error) {
       console.log("[v0] Unexpected login error:", error)

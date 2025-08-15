@@ -1,4 +1,4 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
+import { createClient } from "@supabase/supabase-js"
 import { NextResponse, type NextRequest } from "next/server"
 
 // Check if Supabase environment variables are available
@@ -16,10 +16,33 @@ export async function updateSession(request: NextRequest) {
     })
   }
 
-  const res = NextResponse.next()
+  const response = NextResponse.next()
 
-  // Create a Supabase client configured to use cookies
-  const supabase = createMiddlewareClient({ req: request, res })
+  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    auth: {
+      flowType: "pkce",
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    },
+  })
+
+  // Get session from cookies
+  const accessToken = request.cookies.get("sb-access-token")?.value
+  const refreshToken = request.cookies.get("sb-refresh-token")?.value
+
+  if (accessToken && refreshToken) {
+    // Set the session
+    await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    })
+  }
 
   // Check if this is an auth callback
   const requestUrl = new URL(request.url)
@@ -27,18 +50,32 @@ export async function updateSession(request: NextRequest) {
 
   if (code) {
     // Exchange the code for a session
-    await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    if (data.session && !error) {
+      // Set cookies manually
+      response.cookies.set("sb-access-token", data.session.access_token, {
+        path: "/",
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      })
+      response.cookies.set("sb-refresh-token", data.session.refresh_token, {
+        path: "/",
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+      })
+    }
     // Redirect to home page after successful auth
     return NextResponse.redirect(new URL("/", request.url))
   }
 
-  // Refresh session if expired - required for Server Components
-  await supabase.auth.getSession()
-
   // Protected routes - redirect to login if not authenticated
   const isAuthRoute =
     request.nextUrl.pathname.startsWith("/auth/login") ||
-    request.nextUrl.pathname.startsWith("/auth/sign-up") ||
+    request.nextUrl.pathname.startsWith("/auth/signup") ||
     request.nextUrl.pathname === "/auth/callback"
 
   if (!isAuthRoute) {
@@ -52,5 +89,5 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  return res
+  return response
 }
