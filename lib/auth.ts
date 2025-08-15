@@ -35,8 +35,8 @@ export async function signInWithPassword(email: string, password: string): Promi
       return {
         user: null,
         session: null,
-        error: data.error_description || data.message || "Login failed",
-      }
+        error: data.msg || data.error_code || 'Login failed',
+      };
     }
 
     return {
@@ -76,7 +76,7 @@ export async function signUp(email: string, password: string): Promise<AuthRespo
       return {
         user: null,
         session: null,
-        error: data.error_description || data.message || "Signup failed",
+        error: data.msg || data.error_code || "Signup failed",
       }
     }
 
