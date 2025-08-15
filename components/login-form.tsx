@@ -32,9 +32,10 @@ export default function LoginForm() {
       })
 
       if (error) {
+        console.log("[v0] Login error:", error)
         toast({
-          title: "Error",
-          description: error.message,
+          title: "Login Failed",
+          description: error.message || "Invalid email or password",
           variant: "destructive",
         })
       } else {
@@ -46,9 +47,10 @@ export default function LoginForm() {
         router.refresh()
       }
     } catch (error) {
+      console.log("[v0] Unexpected login error:", error)
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: "An unexpected error occurred during login",
         variant: "destructive",
       })
     } finally {

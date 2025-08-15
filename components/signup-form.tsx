@@ -33,9 +33,10 @@ export default function SignUpForm() {
       })
 
       if (error) {
+        console.log("[v0] Signup error:", error)
         toast({
-          title: "Error",
-          description: error.message,
+          title: "Sign Up Failed",
+          description: error.message || "An error occurred during sign up",
           variant: "destructive",
         })
       } else {
@@ -43,11 +44,14 @@ export default function SignUpForm() {
           title: "Success",
           description: "Check your email to confirm your account!",
         })
+        setEmail("")
+        setPassword("")
       }
     } catch (error) {
+      console.log("[v0] Unexpected signup error:", error)
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: "An unexpected error occurred during sign up",
         variant: "destructive",
       })
     } finally {
