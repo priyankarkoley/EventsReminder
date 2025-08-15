@@ -67,10 +67,8 @@ export function NotificationBanner() {
     <div className="border-b bg-blue-50 dark:bg-blue-950">
       <div className="container mx-auto px-4 py-3">
         {todayEvents.length > 0 ? (
-          <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
-            <div className="flex items-center">
-              <Bell className="h-4 w-4" />
-            </div>
+          <Alert className="flex items-center border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+            <Bell />
             <AlertDescription className="flex items-center justify-between">
               <span>
                 <strong>Today's Events:</strong> {todayEvents.map((event) => event.title).join(", ")}
@@ -81,10 +79,8 @@ export function NotificationBanner() {
             </AlertDescription>
           </Alert>
         ) : !permission.granted && !permission.denied ? (
-          <Alert className="border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
-            <div className="flex items-center">
-              <Bell className="h-4 w-4" />
-            </div>
+          <Alert className="flex items-center border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
+            <Bell />
             <AlertDescription className="flex items-center justify-between">
               <span>Enable notifications to get reminders for your upcoming events</span>
               <div className="flex gap-2">
@@ -99,10 +95,8 @@ export function NotificationBanner() {
             </AlertDescription>
           </Alert>
         ) : permission.denied ? (
-          <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-            <div className="flex items-center">
-              <BellOff className="h-4 w-4" />
-            </div>
+          <Alert className="flex items-center border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+            <BellOff />
             <AlertDescription className="flex items-center justify-between">
               <span>Notifications are blocked. Enable them in your browser settings to get event reminders.</span>
               <Button variant="ghost" size="sm" onClick={handleDismiss}>
