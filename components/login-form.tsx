@@ -33,11 +33,20 @@ export default function LoginForm() {
 
       if (error) {
         console.log("[v0] Login error:", error)
-        toast({
-          title: "Login Failed",
-          description: error.message || "Invalid email or password",
-          variant: "destructive",
-        })
+
+        if (error.code === "email_not_confirmed") {
+          toast({
+            title: "Email Not Confirmed",
+            description: "Please check your email and click the confirmation link before signing in.",
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Login Failed",
+            description: error.message || "Invalid email or password",
+            variant: "destructive",
+          })
+        }
       } else {
         toast({
           title: "Success",

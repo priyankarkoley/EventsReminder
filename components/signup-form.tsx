@@ -42,7 +42,7 @@ export default function SignUpForm() {
       } else {
         toast({
           title: "Success",
-          description: "Check your email to confirm your account!",
+          description: "Account created! Please check your email and click the confirmation link before signing in.",
         })
         setEmail("")
         setPassword("")
