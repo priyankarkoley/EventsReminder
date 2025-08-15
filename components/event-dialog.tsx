@@ -1,30 +1,44 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { XIcon } from "lucide-react"
+import type React from "react";
+import { XIcon } from "lucide-react";
 
-import type { Event, EventFormData } from "@/lib/types"
-import { EventForm } from "./event-form"
-import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogClose, DialogHeader } from "@/components/ui/dialog"
-import { Button } from '@/components/ui/button';
+import type { Event, EventFormData } from "@/lib/types";
+import { EventForm } from "./event-form";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+  DialogClose,
+  DialogHeader,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface EventDialogProps {
-  event?: Event
-  trigger: React.ReactNode
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
-  onSubmit: (data: EventFormData) => void
-  isLoading?: boolean
+  event?: Event;
+  trigger: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onSubmit: (data: EventFormData) => void;
+  isLoading?: boolean;
 }
 
-export function EventDialog({ event, trigger, open, onOpenChange, onSubmit, isLoading }: EventDialogProps) {
+export function EventDialog({
+  event,
+  trigger,
+  open,
+  onOpenChange,
+  onSubmit,
+  isLoading,
+}: EventDialogProps) {
   const handleSubmit = (data: EventFormData) => {
-    onSubmit(data)
-  }
+    onSubmit(data);
+  };
 
   const handleCancel = () => {
-    onOpenChange?.(false)
-  }
+    onOpenChange?.(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -51,5 +65,5 @@ export function EventDialog({ event, trigger, open, onOpenChange, onSubmit, isLo
         />
       </DialogContent>
     </Dialog>
-  )
+  );
 }

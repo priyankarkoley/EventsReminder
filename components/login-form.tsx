@@ -1,55 +1,69 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { signInWithPassword, setAuthCookies } from "@/lib/auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Calendar, Loader2, Eye, EyeOff } from "lucide-react"
-import { showToast } from "@/lib/toast"
+import { useState } from "react";
+import { signInWithPassword, setAuthCookies } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Calendar, Loader2, Eye, EyeOff } from "lucide-react";
+import { showToast } from "@/lib/toast";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const { user, session, error } = await signInWithPassword(email, password)
+      const { user, session, error } = await signInWithPassword(
+        email,
+        password,
+      );
 
       if (error) {
-        console.log("[v0] Login error:", error)
+        console.log("[v0] Login error:", error);
 
-        if (error.includes("email_not_confirmed") || error.includes("Email not confirmed")) {
-          showToast.error("Please check your email and click the confirmation link before signing in.")
+        if (
+          error.includes("email_not_confirmed") ||
+          error.includes("Email not confirmed")
+        ) {
+          showToast.error(
+            "Please check your email and click the confirmation link before signing in.",
+          );
         } else {
-          showToast.error(error || "Invalid email or password")
+          showToast.error(error || "Invalid email or password");
         }
       } else if (user && session) {
-        setAuthCookies(session.access_token, session.refresh_token)
+        setAuthCookies(session.access_token, session.refresh_token);
 
-        showToast.success("Logged in successfully!")
+        showToast.success("Logged in successfully!");
 
-        router.push("/")
-        router.refresh()
+        router.push("/");
+        router.refresh();
       }
     } catch (error) {
-      console.log("[v0] Unexpected login error:", error)
-      showToast.error("An unexpected error occurred during login")
+      console.log("[v0] Unexpected login error:", error);
+      showToast.error("An unexpected error occurred during login");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Card className="w-full max-w-md">
@@ -59,8 +73,12 @@ export default function LoginForm() {
             <Calendar className="h-8 w-8 text-purple-600" />
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold text-gray-900">Welcome back</CardTitle>
-        <CardDescription>Sign in to your event reminder account</CardDescription>
+        <CardTitle className="text-2xl font-bold text-gray-900">
+          Welcome back
+        </CardTitle>
+        <CardDescription>
+          Sign in to your event reminder account
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleLogin} className="space-y-4">
@@ -121,5 +139,5 @@ export default function LoginForm() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

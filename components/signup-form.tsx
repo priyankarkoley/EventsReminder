@@ -1,45 +1,53 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { signUp } from "@/lib/auth"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import Link from "next/link"
-import { Calendar, Loader2, Eye, EyeOff } from "lucide-react"
-import { showToast } from "@/lib/toast"
+import { useState } from "react";
+import { signUp } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
+import { Calendar, Loader2, Eye, EyeOff } from "lucide-react";
+import { showToast } from "@/lib/toast";
 
 export default function SignUpForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      const { error } = await signUp(email, password)
+      const { error } = await signUp(email, password);
 
       if (error) {
-        console.log("[v0] Signup error:", error)
-        showToast.error(error || "An error occurred during sign up")
+        console.log("[v0] Signup error:", error);
+        showToast.error(error || "An error occurred during sign up");
       } else {
-        showToast.success("Account created! Please check your email and click the confirmation link before signing in.")
-        setEmail("")
-        setPassword("")
+        showToast.success(
+          "Account created! Please check your email and click the confirmation link before signing in.",
+        );
+        setEmail("");
+        setPassword("");
       }
     } catch (error) {
-      console.log("[v0] Unexpected signup error:", error)
-      showToast.error("An unexpected error occurred during sign up")
+      console.log("[v0] Unexpected signup error:", error);
+      showToast.error("An unexpected error occurred during sign up");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Card className="w-full max-w-md">
@@ -49,7 +57,9 @@ export default function SignUpForm() {
             <Calendar className="h-8 w-8 text-purple-600" />
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold text-gray-900">Create account</CardTitle>
+        <CardTitle className="text-2xl font-bold text-gray-900">
+          Create account
+        </CardTitle>
         <CardDescription>Sign up to start tracking your events</CardDescription>
       </CardHeader>
       <CardContent>
@@ -111,5 +121,5 @@ export default function SignUpForm() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

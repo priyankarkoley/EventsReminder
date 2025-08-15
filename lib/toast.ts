@@ -1,4 +1,4 @@
-import toast, { Toaster } from "react-hot-toast"
+import toast, { Toaster } from "react-hot-toast";
 
 // Configure react-hot-toast with middle top position
 export const showToast = {
@@ -16,6 +16,6 @@ export const showToast = {
     toast.loading(message, {
       position: "top-center",
     }),
-}
+};
 
-export { toast, Toaster }
+export { toast, Toaster };

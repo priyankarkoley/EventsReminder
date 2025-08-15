@@ -1,114 +1,116 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import type { EventFormData } from "@/lib/types"
-import { getEvents, createEvent } from "@/lib/events-api"
-import { getDaysUntil } from "@/lib/date-utils"
-import { UpcomingEvents } from "@/components/upcoming-events"
-import { EventDialog } from "@/components/event-dialog"
-import { NotificationBanner } from "@/components/notification-banner"
-import { NotificationChecker } from "@/components/notification-checker"
-import { NotificationBackgroundService } from "@/components/notification-background-service"
-import { Button } from "@/components/ui/button"
-import { Plus, Gift, LogOut, Calendar } from "lucide-react"
-import { showToast } from "@/lib/toast"
-import { signOut } from "@/lib/auth"
-import { useRouter } from "next/navigation"
-import { pushNotificationService } from "@/lib/push-notifications"
+import { useState, useEffect } from "react";
+import type { EventFormData } from "@/lib/types";
+import { getEvents, createEvent } from "@/lib/events-api";
+import { getDaysUntil } from "@/lib/date-utils";
+import { UpcomingEvents } from "@/components/upcoming-events";
+import { EventDialog } from "@/components/event-dialog";
+import { NotificationBanner } from "@/components/notification-banner";
+import { NotificationChecker } from "@/components/notification-checker";
+import { NotificationBackgroundService } from "@/components/notification-background-service";
+import { Button } from "@/components/ui/button";
+import { Plus, Gift, LogOut, Calendar } from "lucide-react";
+import { showToast } from "@/lib/toast";
+import { signOut } from "@/lib/auth";
+import { useRouter } from "next/navigation";
+import { pushNotificationService } from "@/lib/push-notifications";
 
 interface AuthenticatedHomePageProps {
-  user: { id: string; email: string }
+  user: { id: string; email: string };
 }
 
 export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [stats, setStats] = useState({
     thisWeek: 0,
     thisMonth: 0,
     total: 0,
-  })
+  });
 
-  const router = useRouter()
+  const router = useRouter();
 
   const loadStats = async () => {
-    const events = await getEvents()
+    const events = await getEvents();
 
     const thisWeek = events.filter((event) => {
-      const daysUntil = getDaysUntil(event.date)
-      return daysUntil >= 0 && daysUntil <= 7
-    }).length
+      const daysUntil = getDaysUntil(event.date);
+      return daysUntil >= 0 && daysUntil <= 7;
+    }).length;
 
     const thisMonth = events.filter((event) => {
-      const daysUntil = getDaysUntil(event.date)
-      return daysUntil >= 0 && daysUntil <= 30
-    }).length
+      const daysUntil = getDaysUntil(event.date);
+      return daysUntil >= 0 && daysUntil <= 30;
+    }).length;
 
     setStats({
       thisWeek,
       thisMonth,
       total: events.length,
-    })
-  }
+    });
+  };
 
   useEffect(() => {
-    loadStats()
+    loadStats();
 
     const initializeNotifications = async () => {
       if (pushNotificationService.isSupported()) {
-        const granted = await pushNotificationService.requestPermission()
+        const granted = await pushNotificationService.requestPermission();
         if (granted) {
-          console.log("[v0] Push notifications enabled")
+          console.log("[v0] Push notifications enabled");
         } else {
-          console.log("[v0] Push notifications denied")
+          console.log("[v0] Push notifications denied");
         }
       }
-    }
+    };
 
-    initializeNotifications()
+    initializeNotifications();
 
     const handleEventsChanged = () => {
-      loadStats()
-    }
+      loadStats();
+    };
 
-    window.addEventListener("eventsChanged", handleEventsChanged)
+    window.addEventListener("eventsChanged", handleEventsChanged);
 
-    const interval = setInterval(loadStats, 60000)
+    const interval = setInterval(loadStats, 60000);
 
     return () => {
-      clearInterval(interval)
-      window.removeEventListener("eventsChanged", handleEventsChanged)
-    }
-  }, [])
+      clearInterval(interval);
+      window.removeEventListener("eventsChanged", handleEventsChanged);
+    };
+  }, []);
 
   const handleAddEvent = async (data: EventFormData) => {
     try {
-      const newEvent = await createEvent(data, data.notifications)
+      const newEvent = await createEvent(data, data.notifications);
       if (newEvent) {
-        setIsAddDialogOpen(false)
-        loadStats()
-        showToast.success("Your event has been successfully added.")
+        setIsAddDialogOpen(false);
+        loadStats();
+        showToast.success("Your event has been successfully added.");
         if (data.notifications?.enabled) {
-          showToast.success("Notifications have been scheduled for this event.")
+          showToast.success(
+            "Notifications have been scheduled for this event.",
+          );
         }
-        window.dispatchEvent(new CustomEvent("eventsChanged"))
+        window.dispatchEvent(new CustomEvent("eventsChanged"));
       } else {
-        showToast.error("Failed to add event. Please try again.")
+        showToast.error("Failed to add event. Please try again.");
       }
     } catch (error) {
-      showToast.error("An unexpected error occurred while adding the event.")
+      showToast.error("An unexpected error occurred while adding the event.");
     }
-  }
+  };
 
   const handleSignOut = async () => {
     try {
-      await signOut()
-      showToast.success("You have been successfully signed out.")
-      router.push("/auth/login")
-      router.refresh()
+      await signOut();
+      showToast.success("You have been successfully signed out.");
+      router.push("/auth/login");
+      router.refresh();
     } catch (error) {
-      showToast.error("Failed to sign out. Please try again.")
+      showToast.error("Failed to sign out. Please try again.");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,8 +127,12 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
                 <Gift className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Event Reminders</h1>
-                <p className="text-sm text-muted-foreground">Never miss important dates</p>
+                <h1 className="text-2xl font-bold text-foreground">
+                  Event Reminders
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  Never miss important dates
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -144,7 +150,11 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
                 onOpenChange={setIsAddDialogOpen}
                 onSubmit={handleAddEvent}
               />
-              <Button variant="outline" onClick={handleSignOut} className="flex items-center gap-2 bg-transparent">
+              <Button
+                variant="outline"
+                onClick={handleSignOut}
+                className="flex items-center gap-2 bg-transparent"
+              >
                 <LogOut className="h-4 w-4" />
                 Sign Out
               </Button>
@@ -192,5 +202,5 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
         </div>
       </main>
     </div>
-  )
+  );
 }
