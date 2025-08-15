@@ -9,10 +9,11 @@ import { EventDialog } from "@/components/event-dialog"
 import { NotificationBanner } from "@/components/notification-banner"
 import { NotificationChecker } from "@/components/notification-checker"
 import { Button } from "@/components/ui/button"
-import { Plus, Gift, LogOut, Calendar } from "lucide-react"
+import { Plus, Gift, LogOut, Calendar, Settings } from "lucide-react"
 import { showToast } from "@/lib/toast"
 import { signOut } from "@/lib/auth"
 import { useRouter } from "next/navigation"
+import { SettingsDialog } from "@/components/settings-dialog"
 
 interface AuthenticatedHomePageProps {
   user: { id: string; email: string }
@@ -117,6 +118,14 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <span>{user.email}</span>
               </div>
+              <SettingsDialog
+                trigger={
+                  <Button variant="outline" size="sm" className="flex items-center gap-2 bg-transparent">
+                    <Settings className="h-4 w-4" />
+                    Settings
+                  </Button>
+                }
+              />
               <EventDialog
                 trigger={
                   <Button className="flex items-center gap-2">

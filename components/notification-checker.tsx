@@ -1,44 +1,49 @@
 "use client"
 
 import { useEffect } from "react"
-import { getEvents } from "@/lib/events-api"
-import { getDaysUntil } from "@/lib/date-utils"
-import { getNotificationPermission, scheduleEventNotification } from "@/lib/notifications"
+import { pushNotificationService } from "@/lib/push-notification-service"
 import { showToast } from "@/lib/toast"
 
 export function NotificationChecker() {
   useEffect(() => {
-    const checkAndNotify = async () => {
+    const initializeNotifications = async () => {
       try {
-        const permission = getNotificationPermission()
-
-        if (!permission.granted) return
-
-        const events = await getEvents()
-        const upcomingEvents = events.filter((event) => {
-          const daysUntil = getDaysUntil(event.date)
-          return daysUntil >= 0 && daysUntil <= 1 // Today or tomorrow
-        })
-
-        upcomingEvents.forEach((event) => {
-          try {
-            scheduleEventNotification(event.title, event.date, event.type)
-          } catch (error) {
-            console.error("Failed to schedule notification for event:", event.title, error)
-          }
-        })
+        await pushNotificationService.scheduleNotificationsForAllEvents()
       } catch (error) {
-        showToast.error("Failed to check for upcoming events notifications.")
+        console.error("[v0] Error initializing notifications:", error)
+        showToast.error("Failed to initialize notification system.")
       }
     }
 
-    // Check immediately
-    checkAndNotify()
+    // Initialize notifications on component mount
+    initializeNotifications()
 
-    // Check every hour
-    const interval = setInterval(checkAndNotify, 60 * 60 * 1000)
+    const handleEventsChanged = async () => {
+      try {
+        await pushNotificationService.onEventsChanged()
+      } catch (error) {
+        console.error("[v0] Error rescheduling notifications after events change:", error)
+      }
+    }
 
-    return () => clearInterval(interval)
+    const handlePreferencesChanged = async () => {
+      try {
+        await pushNotificationService.onPreferencesChanged()
+      } catch (error) {
+        console.error("[v0] Error rescheduling notifications after preferences change:", error)
+      }
+    }
+
+    window.addEventListener("eventsChanged", handleEventsChanged)
+    window.addEventListener("preferencesChanged", handlePreferencesChanged)
+
+    const interval = setInterval(initializeNotifications, 60 * 60 * 1000)
+
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener("eventsChanged", handleEventsChanged)
+      window.removeEventListener("preferencesChanged", handlePreferencesChanged)
+    }
   }, [])
 
   return null // This component doesn't render anything
