@@ -72,23 +72,49 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
   }, [])
 
   const handleAddEvent = async (data: EventFormData) => {
-    const newEvent = await createEvent(data)
-    if (newEvent) {
-      setIsAddDialogOpen(false)
-      loadStats()
+    try {
+      const newEvent = await createEvent(data)
+      if (newEvent) {
+        setIsAddDialogOpen(false)
+        loadStats()
+        toast({
+          title: "Event added",
+          description: "Your event has been successfully added.",
+        })
+        // Trigger a refresh of the upcoming events component
+        window.dispatchEvent(new CustomEvent("eventsChanged"))
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to add event. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
       toast({
-        title: "Event added",
-        description: "Your event has been successfully added.",
+        title: "Error",
+        description: "An unexpected error occurred while adding the event.",
+        variant: "destructive",
       })
-      // Trigger a refresh of the upcoming events component
-      window.dispatchEvent(new CustomEvent("eventsChanged"))
     }
   }
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push("/auth/login")
-    router.refresh()
+    try {
+      await supabase.auth.signOut()
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      })
+      router.push("/auth/login")
+      router.refresh()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   return (

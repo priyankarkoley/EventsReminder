@@ -18,11 +18,20 @@ export function UpcomingEvents() {
   const { toast } = useToast()
 
   const loadEvents = async () => {
-    const allEvents = await getEvents()
-    const upcomingEvents = allEvents.filter((event) => isUpcoming(event.date))
-    const sortedEvents = sortEventsByDate(upcomingEvents)
-    setEvents(sortedEvents)
-    setLoading(false)
+    try {
+      const allEvents = await getEvents()
+      const upcomingEvents = allEvents.filter((event) => isUpcoming(event.date))
+      const sortedEvents = sortEventsByDate(upcomingEvents)
+      setEvents(sortedEvents)
+      setLoading(false)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load events. Please refresh the page.",
+        variant: "destructive",
+      })
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -52,30 +61,58 @@ export function UpcomingEvents() {
   const handleEditSubmit = async (data: EventFormData) => {
     if (!editingEvent) return
 
-    const updatedEvent = await updateEvent(editingEvent.id, data)
-    if (updatedEvent) {
-      loadEvents()
-      setIsEditDialogOpen(false)
-      setEditingEvent(null)
+    try {
+      const updatedEvent = await updateEvent(editingEvent.id, data)
+      if (updatedEvent) {
+        loadEvents()
+        setIsEditDialogOpen(false)
+        setEditingEvent(null)
+        toast({
+          title: "Event updated",
+          description: "Your event has been successfully updated.",
+        })
+        // Trigger a refresh of other components
+        window.dispatchEvent(new CustomEvent("eventsChanged"))
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update event. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
       toast({
-        title: "Event updated",
-        description: "Your event has been successfully updated.",
+        title: "Error",
+        description: "An unexpected error occurred while updating the event.",
+        variant: "destructive",
       })
-      // Trigger a refresh of other components
-      window.dispatchEvent(new CustomEvent("eventsChanged"))
     }
   }
 
   const handleDelete = async (id: string) => {
-    const success = await deleteEvent(id)
-    if (success) {
-      loadEvents()
+    try {
+      const success = await deleteEvent(id)
+      if (success) {
+        loadEvents()
+        toast({
+          title: "Event deleted",
+          description: "Your event has been successfully deleted.",
+        })
+        // Trigger a refresh of other components
+        window.dispatchEvent(new CustomEvent("eventsChanged"))
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to delete event. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
       toast({
-        title: "Event deleted",
-        description: "Your event has been successfully deleted.",
+        title: "Error",
+        description: "An unexpected error occurred while deleting the event.",
+        variant: "destructive",
       })
-      // Trigger a refresh of other components
-      window.dispatchEvent(new CustomEvent("eventsChanged"))
     }
   }
 
