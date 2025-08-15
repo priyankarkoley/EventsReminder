@@ -11,14 +11,13 @@ import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Calendar, Loader2 } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { showToast } from "@/lib/toast"
 
 export default function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const { toast } = useToast()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,36 +30,21 @@ export default function LoginForm() {
         console.log("[v0] Login error:", error)
 
         if (error.includes("email_not_confirmed") || error.includes("Email not confirmed")) {
-          toast({
-            title: "Email Not Confirmed",
-            description: "Please check your email and click the confirmation link before signing in.",
-            variant: "destructive",
-          })
+          showToast.error("Please check your email and click the confirmation link before signing in.")
         } else {
-          toast({
-            title: "Login Failed",
-            description: error || "Invalid email or password",
-            variant: "destructive",
-          })
+          showToast.error(error || "Invalid email or password")
         }
       } else if (user && session) {
         setAuthCookies(session.access_token, session.refresh_token)
 
-        toast({
-          title: "Success",
-          description: "Logged in successfully!",
-        })
+        showToast.success("Logged in successfully!")
 
         router.push("/")
         router.refresh()
       }
     } catch (error) {
       console.log("[v0] Unexpected login error:", error)
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred during login",
-        variant: "destructive",
-      })
+      showToast.error("An unexpected error occurred during login")
     } finally {
       setLoading(false)
     }

@@ -8,14 +8,13 @@ import { EventCard } from "./event-card"
 import { EventDialog } from "./event-dialog"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { showToast } from "@/lib/toast"
 
 export function UpcomingEvents() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [editingEvent, setEditingEvent] = useState<Event | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const { toast } = useToast()
 
   const loadEvents = async () => {
     try {
@@ -25,11 +24,7 @@ export function UpcomingEvents() {
       setEvents(sortedEvents)
       setLoading(false)
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load events. Please refresh the page.",
-        variant: "destructive",
-      })
+      showToast.error("Failed to load events. Please refresh the page.")
       setLoading(false)
     }
   }
@@ -67,25 +62,14 @@ export function UpcomingEvents() {
         loadEvents()
         setIsEditDialogOpen(false)
         setEditingEvent(null)
-        toast({
-          title: "Event updated",
-          description: "Your event has been successfully updated.",
-        })
+        showToast.success("Your event has been successfully updated.")
         // Trigger a refresh of other components
         window.dispatchEvent(new CustomEvent("eventsChanged"))
       } else {
-        toast({
-          title: "Error",
-          description: "Failed to update event. Please try again.",
-          variant: "destructive",
-        })
+        showToast.error("Failed to update event. Please try again.")
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred while updating the event.",
-        variant: "destructive",
-      })
+      showToast.error("An unexpected error occurred while updating the event.")
     }
   }
 
@@ -94,25 +78,14 @@ export function UpcomingEvents() {
       const success = await deleteEvent(id)
       if (success) {
         loadEvents()
-        toast({
-          title: "Event deleted",
-          description: "Your event has been successfully deleted.",
-        })
+        showToast.success("Your event has been successfully deleted.")
         // Trigger a refresh of other components
         window.dispatchEvent(new CustomEvent("eventsChanged"))
       } else {
-        toast({
-          title: "Error",
-          description: "Failed to delete event. Please try again.",
-          variant: "destructive",
-        })
+        showToast.error("Failed to delete event. Please try again.")
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred while deleting the event.",
-        variant: "destructive",
-      })
+      showToast.error("An unexpected error occurred while deleting the event.")
     }
   }
 

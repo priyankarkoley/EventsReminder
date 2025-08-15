@@ -10,8 +10,7 @@ import { NotificationBanner } from "@/components/notification-banner"
 import { NotificationChecker } from "@/components/notification-checker"
 import { Button } from "@/components/ui/button"
 import { Plus, Gift, LogOut, Calendar } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { Toaster } from "@/components/ui/toaster"
+import { showToast } from "@/lib/toast"
 import { signOut } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 
@@ -27,7 +26,6 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
     total: 0,
   })
 
-  const { toast } = useToast()
   const router = useRouter()
 
   const loadStats = async () => {
@@ -75,43 +73,25 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
       if (newEvent) {
         setIsAddDialogOpen(false)
         loadStats()
-        toast({
-          title: "Event added",
-          description: "Your event has been successfully added.",
-        })
+        showToast.success("Your event has been successfully added.")
         // Trigger a refresh of the upcoming events component
         window.dispatchEvent(new CustomEvent("eventsChanged"))
       } else {
-        toast({
-          title: "Error",
-          description: "Failed to add event. Please try again.",
-          variant: "destructive",
-        })
+        showToast.error("Failed to add event. Please try again.")
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred while adding the event.",
-        variant: "destructive",
-      })
+      showToast.error("An unexpected error occurred while adding the event.")
     }
   }
 
   const handleSignOut = async () => {
     try {
       await signOut()
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      })
+      showToast.success("You have been successfully signed out.")
       router.push("/auth/login")
       router.refresh()
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive",
-      })
+      showToast.error("Failed to sign out. Please try again.")
     }
   }
 
@@ -195,8 +175,6 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
           <UpcomingEvents />
         </div>
       </main>
-
-      <Toaster />
     </div>
   )
 }

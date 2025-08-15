@@ -10,13 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { Calendar, Loader2 } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { showToast } from "@/lib/toast"
 
 export default function SignUpForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
-  const { toast } = useToast()
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,26 +26,15 @@ export default function SignUpForm() {
 
       if (error) {
         console.log("[v0] Signup error:", error)
-        toast({
-          title: "Sign Up Failed",
-          description: error || "An error occurred during sign up",
-          variant: "destructive",
-        })
+        showToast.error(error || "An error occurred during sign up")
       } else {
-        toast({
-          title: "Success",
-          description: "Account created! Please check your email and click the confirmation link before signing in.",
-        })
+        showToast.success("Account created! Please check your email and click the confirmation link before signing in.")
         setEmail("")
         setPassword("")
       }
     } catch (error) {
       console.log("[v0] Unexpected signup error:", error)
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred during sign up",
-        variant: "destructive",
-      })
+      showToast.error("An unexpected error occurred during sign up")
     } finally {
       setLoading(false)
     }

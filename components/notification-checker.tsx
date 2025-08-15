@@ -4,11 +4,9 @@ import { useEffect } from "react"
 import { getEvents } from "@/lib/events-api"
 import { getDaysUntil } from "@/lib/date-utils"
 import { getNotificationPermission, scheduleEventNotification } from "@/lib/notifications"
-import { useToast } from "@/hooks/use-toast"
+import { showToast } from "@/lib/toast"
 
 export function NotificationChecker() {
-  const { toast } = useToast()
-
   useEffect(() => {
     const checkAndNotify = async () => {
       try {
@@ -30,11 +28,7 @@ export function NotificationChecker() {
           }
         })
       } catch (error) {
-        toast({
-          title: "Notification Error",
-          description: "Failed to check for upcoming events notifications.",
-          variant: "destructive",
-        })
+        showToast.error("Failed to check for upcoming events notifications.")
       }
     }
 
@@ -45,7 +39,7 @@ export function NotificationChecker() {
     const interval = setInterval(checkAndNotify, 60 * 60 * 1000)
 
     return () => clearInterval(interval)
-  }, [toast])
+  }, [])
 
   return null // This component doesn't render anything
 }
