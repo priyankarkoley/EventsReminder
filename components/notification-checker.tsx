@@ -1,50 +1,45 @@
-'use client';
+"use client"
 
-import { useEffect } from 'react';
-import { pushNotificationService } from '@/lib/push-notification-service';
-import { showToast } from '@/lib/toast';
+import { useEffect } from "react"
+import { getEvents } from "@/lib/events-api"
+import { getDaysUntil } from "@/lib/date-utils"
+import { getNotificationPermission, scheduleEventNotification } from "@/lib/notifications"
+import { showToast } from "@/lib/toast"
 
 export function NotificationChecker() {
-	useEffect(() => {
-		const initializeNotifications = async () => {
-			try {
-				await pushNotificationService.scheduleNotificationsForAllEvents();
-			} catch (error) {
-				console.error('[v0] Error initializing notifications:', error);
-				showToast.error('Failed to initialize notification system.');
-			}
-		};
+  useEffect(() => {
+    const checkAndNotify = async () => {
+      try {
+        const permission = getNotificationPermission()
 
-		// Initialize notifications on component mount
-		initializeNotifications();
+        if (!permission.granted) return
 
-		const handleEventsChanged = async () => {
-			try {
-				await pushNotificationService.onEventsChanged();
-			} catch (error) {
-				console.error('[v0] Error rescheduling notifications after events change:', error);
-			}
-		};
+        const events = await getEvents()
+        const upcomingEvents = events.filter((event) => {
+          const daysUntil = getDaysUntil(event.date)
+          return daysUntil >= 0 && daysUntil <= 1 // Today or tomorrow
+        })
 
-		const handlePreferencesChanged = async () => {
-			try {
-				await pushNotificationService.onPreferencesChanged();
-			} catch (error) {
-				console.error('[v0] Error rescheduling notifications after preferences change:', error);
-			}
-		};
+        upcomingEvents.forEach((event) => {
+          try {
+            scheduleEventNotification(event.title, event.date, event.type)
+          } catch (error) {
+            console.error("Failed to schedule notification for event:", event.title, error)
+          }
+        })
+      } catch (error) {
+        showToast.error("Failed to check for upcoming events notifications.")
+      }
+    }
 
-		window.addEventListener('eventsChanged', handleEventsChanged);
-		window.addEventListener('preferencesChanged', handlePreferencesChanged);
+    // Check immediately
+    checkAndNotify()
 
-		const interval = setInterval(initializeNotifications, 60 * 60 * 1000);
+    // Check every hour
+    const interval = setInterval(checkAndNotify, 60 * 60 * 1000)
 
-		return () => {
-			clearInterval(interval);
-			window.removeEventListener('eventsChanged', handleEventsChanged);
-			window.removeEventListener('preferencesChanged', handlePreferencesChanged);
-		};
-	}, []);
+    return () => clearInterval(interval)
+  }, [])
 
-	return null; // This component doesn't render anything
+  return null // This component doesn't render anything
 }

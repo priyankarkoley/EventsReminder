@@ -1,17 +1,27 @@
 export interface Event {
-	id: string;
-	user_id: string;
-	title: string;
-	date: string;
-	type: 'birthday' | 'anniversary' | 'other';
-	description?: string;
-	created_at: string;
-	updated_at: string;
+  id: string
+  user_id: string
+  title: string
+  date: string
+  type: "birthday" | "anniversary" | "other"
+  description?: string
+  created_at: string
+  updated_at: string
 }
 
 export interface EventFormData {
-	title: string;
-	date: string;
-	type: 'birthday' | 'anniversary' | 'other';
-	description?: string;
+  title: string
+  date: string
+  type: "birthday" | "anniversary" | "other"
+  description?: string
+  notifications?: {
+    enabled: boolean
+    sameDay: boolean
+    sameDayTime: string
+    dayBefore: boolean
+    dayBeforeTime: string
+    weekBefore: boolean
+    weekBeforeTime: string
+    browserPush: boolean
+  }
 }
