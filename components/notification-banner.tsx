@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import type { Event } from "@/lib/types"
-import { getEvents } from "@/lib/supabase-events"
+import { getEvents } from "@/lib/events-api"
 import { getDaysUntil } from "@/lib/date-utils"
 import { getNotificationPermission, requestNotificationPermission } from "@/lib/notifications"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -17,12 +17,16 @@ export function NotificationBanner() {
 
   useEffect(() => {
     const checkTodayEvents = async () => {
-      const events = await getEvents()
-      const today = events.filter((event) => getDaysUntil(event.date) === 0)
-      setTodayEvents(today)
+      try {
+        const events = await getEvents()
+        const today = events.filter((event) => getDaysUntil(event.date) === 0)
+        setTodayEvents(today)
 
-      // Show banner if there are events today or if notifications are not enabled
-      setShowBanner((today.length > 0 || !permission.granted) && !dismissed)
+        // Show banner if there are events today or if notifications are not enabled
+        setShowBanner((today.length > 0 || !permission.granted) && !dismissed)
+      } catch (error) {
+        console.error("Failed to load events for notification banner:", error)
+      }
     }
 
     checkTodayEvents()

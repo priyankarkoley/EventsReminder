@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { signInWithPassword, setAuthCookies } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,22 +19,18 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { user, session, error } = await signInWithPassword(email, password)
 
       if (error) {
         console.log("[v0] Login error:", error)
 
-        if (error.code === "email_not_confirmed") {
+        if (error.includes("email_not_confirmed") || error.includes("Email not confirmed")) {
           toast({
             title: "Email Not Confirmed",
             description: "Please check your email and click the confirmation link before signing in.",
@@ -43,17 +39,18 @@ export default function LoginForm() {
         } else {
           toast({
             title: "Login Failed",
-            description: error.message || "Invalid email or password",
+            description: error || "Invalid email or password",
             variant: "destructive",
           })
         }
-      } else {
+      } else if (user && session) {
+        setAuthCookies(session.access_token, session.refresh_token)
+
         toast({
           title: "Success",
           description: "Logged in successfully!",
         })
 
-        // Use Next.js router for proper navigation
         router.push("/")
         router.refresh()
       }

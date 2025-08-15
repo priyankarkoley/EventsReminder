@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { signUp } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,26 +17,19 @@ export default function SignUpForm() {
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
-  const supabase = createClient()
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || window.location.origin,
-        },
-      })
+      const { error } = await signUp(email, password)
 
       if (error) {
         console.log("[v0] Signup error:", error)
         toast({
           title: "Sign Up Failed",
-          description: error.message || "An error occurred during sign up",
+          description: error || "An error occurred during sign up",
           variant: "destructive",
         })
       } else {

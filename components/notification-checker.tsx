@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { getEvents } from "@/lib/supabase-events"
+import { getEvents } from "@/lib/events-api"
 import { getDaysUntil } from "@/lib/date-utils"
 import { getNotificationPermission, scheduleEventNotification } from "@/lib/notifications"
 import { useToast } from "@/hooks/use-toast"

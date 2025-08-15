@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import type { Event, EventFormData } from "@/lib/types"
-import { getEvents, updateEvent, deleteEvent } from "@/lib/supabase-events"
+import { getEvents, updateEvent, deleteEvent } from "@/lib/events-api"
 import { isUpcoming, sortEventsByDate } from "@/lib/date-utils"
 import { EventCard } from "./event-card"
 import { EventDialog } from "./event-dialog"

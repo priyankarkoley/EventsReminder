@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import type { EventFormData } from "@/lib/types"
-import { getEvents, createEvent } from "@/lib/supabase-events"
+import { getEvents, createEvent } from "@/lib/events-api"
 import { getDaysUntil } from "@/lib/date-utils"
 import { UpcomingEvents } from "@/components/upcoming-events"
 import { EventDialog } from "@/components/event-dialog"
@@ -12,12 +12,11 @@ import { Button } from "@/components/ui/button"
 import { Plus, Gift, LogOut, Calendar } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import { createClient } from "@/lib/supabase/client"
+import { signOut } from "@/lib/auth"
 import { useRouter } from "next/navigation"
-import type { User as SupabaseUser } from "@supabase/supabase-js"
 
 interface AuthenticatedHomePageProps {
-  user: SupabaseUser
+  user: { id: string; email: string }
 }
 
 export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
@@ -30,7 +29,6 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
 
   const { toast } = useToast()
   const router = useRouter()
-  const supabase = createClient()
 
   const loadStats = async () => {
     const events = await getEvents()
@@ -101,7 +99,7 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut()
+      await signOut()
       toast({
         title: "Signed out",
         description: "You have been successfully signed out.",
