@@ -8,7 +8,10 @@ export function createClient() {
     auth: {
       storage: {
         getItem: (key: string) => {
-          const cookie = cookieStore.get(key)
+          const cookie =
+            cookieStore.get(`sb-${process.env.NEXT_PUBLIC_SUPABASE_URL?.split("//")[1]?.split(".")[0]}-auth-token`) ||
+            cookieStore.get("sb-access-token") ||
+            cookieStore.get(key)
           return cookie?.value || null
         },
         setItem: (key: string, value: string) => {
@@ -18,6 +21,7 @@ export function createClient() {
               secure: true,
               sameSite: "lax",
               path: "/",
+              maxAge: 60 * 60 * 24 * 7, // 7 days
             })
           } catch {
             // Ignore if called from Server Component
