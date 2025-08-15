@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface EventFormProps {
@@ -25,7 +24,6 @@ export function EventForm({ event, onSubmit, onCancel, isLoading = false }: Even
     date: event?.date || "",
     type: event?.type || "other",
     description: event?.description || "",
-    recurring: event?.recurring || false,
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -93,17 +91,6 @@ export function EventForm({ event, onSubmit, onCancel, isLoading = false }: Even
               placeholder="Add any additional details..."
               rows={3}
             />
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="recurring"
-              checked={formData.recurring}
-              onCheckedChange={(checked) => handleChange("recurring", checked as boolean)}
-            />
-            <Label htmlFor="recurring" className="text-sm">
-              Recurring yearly
-            </Label>
           </div>
 
           <div className="flex gap-2 pt-4">

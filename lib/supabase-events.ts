@@ -22,11 +22,15 @@ export async function createEvent(event: Omit<Event, "id">): Promise<Event | nul
   } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data, error } = await supabase
-    .from("events")
-    .insert([{ ...event, user_id: user.id }])
-    .select()
-    .single()
+  const eventData = {
+    title: event.title,
+    date: event.date,
+    type: event.type,
+    description: event.description,
+    user_id: user.id,
+  }
+
+  const { data, error } = await supabase.from("events").insert([eventData]).select().single()
 
   if (error) {
     console.error("Error creating event:", error)
@@ -39,7 +43,13 @@ export async function createEvent(event: Omit<Event, "id">): Promise<Event | nul
 export async function updateEvent(id: string, updates: Partial<Event>): Promise<Event | null> {
   const supabase = createClient()
 
-  const { data, error } = await supabase.from("events").update(updates).eq("id", id).select().single()
+  const updateData: any = {}
+  if (updates.title !== undefined) updateData.title = updates.title
+  if (updates.date !== undefined) updateData.date = updates.date
+  if (updates.type !== undefined) updateData.type = updates.type
+  if (updates.description !== undefined) updateData.description = updates.description
+
+  const { data, error } = await supabase.from("events").update(updateData).eq("id", id).select().single()
 
   if (error) {
     console.error("Error updating event:", error)
