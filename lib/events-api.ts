@@ -120,6 +120,51 @@ export async function getEvents(): Promise<Event[]> {
   }
 }
 
+export async function getEventsByDateRange(
+  startDate?: string,
+  endDate?: string,
+): Promise<Event[]> {
+  try {
+    const authResult = await getUser();
+    if (!authResult || !authResult.user || !authResult.access_token) {
+      return [];
+    }
+
+    let url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/events?select=*&order=date.desc`;
+
+    if (startDate && endDate) {
+      url += `&date=gte.${startDate}&date=lte.${endDate}`;
+    } else if (startDate) {
+      url += `&date=gte.${startDate}`;
+    } else if (endDate) {
+      url += `&date=lte.${endDate}`;
+    }
+
+    const eventsResponse = await fetch(url, {
+      headers: {
+        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        Authorization: `Bearer ${authResult.access_token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!eventsResponse.ok) {
+      console.error(
+        "[v0] Error fetching events by date range:",
+        eventsResponse.status,
+        eventsResponse.statusText,
+      );
+      return [];
+    }
+
+    const events = await eventsResponse.json();
+    return events || [];
+  } catch (error) {
+    console.error("[v0] Error in getEventsByDateRange:", error);
+    return [];
+  }
+}
+
 export async function createEvent(
   event: Omit<Event, "id" | "user_id" | "created_at" | "updated_at">,
   notificationSettings?: NotificationSettings,
@@ -250,4 +295,112 @@ export async function deleteEvent(id: string): Promise<boolean> {
   } catch (error) {
     return false;
   }
+}
+
+export async function getPastEventsIncludingRecurring(): Promise<Event[]> {
+  try {
+    const authResult = await getUser();
+    if (!authResult || !authResult.user || !authResult.access_token) {
+      return [];
+    }
+
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    // Fetch all events for the user
+    const eventsResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/events?select=*&order=date.desc`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${authResult.access_token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (!eventsResponse.ok) {
+      console.error(
+        "[v0] Error fetching events:",
+        eventsResponse.status,
+        eventsResponse.statusText,
+      );
+      return [];
+    }
+
+    const allEvents = await eventsResponse.json();
+    const pastEvents: Event[] = [];
+
+    for (const event of allEvents) {
+      const eventDate = new Date(event.date);
+
+      if (event.recurring) {
+        // For recurring events, check if they had occurrences in the past 30 days
+        const hasRecentOccurrence = checkRecurringEventInDateRange(
+          eventDate,
+          thirtyDaysAgo,
+          yesterday,
+          event.type,
+        );
+
+        if (hasRecentOccurrence) {
+          pastEvents.push(event);
+        }
+      } else {
+        // For non-recurring events, check if the date is in the past 30 days
+        if (eventDate >= thirtyDaysAgo && eventDate <= yesterday) {
+          pastEvents.push(event);
+        }
+      }
+    }
+
+    return pastEvents;
+  } catch (error) {
+    console.error("[v0] Error in getPastEventsIncludingRecurring:", error);
+    return [];
+  }
+}
+
+function checkRecurringEventInDateRange(
+  eventDate: Date,
+  startDate: Date,
+  endDate: Date,
+  eventType: string,
+): boolean {
+  const currentYear = new Date().getFullYear();
+  const startYear = startDate.getFullYear();
+
+  // For birthdays and anniversaries, check if the anniversary date fell within the range
+  if (eventType === "birthday" || eventType === "anniversary") {
+    // Check current year and previous year occurrences
+    for (let year = startYear; year <= currentYear; year++) {
+      const anniversaryDate = new Date(
+        year,
+        eventDate.getMonth(),
+        eventDate.getDate(),
+      );
+
+      if (anniversaryDate >= startDate && anniversaryDate <= endDate) {
+        return true;
+      }
+    }
+  }
+
+  // For other recurring events, assume yearly recurrence
+  for (let year = startYear; year <= currentYear; year++) {
+    const recurringDate = new Date(
+      year,
+      eventDate.getMonth(),
+      eventDate.getDate(),
+    );
+
+    if (recurringDate >= startDate && recurringDate <= endDate) {
+      return true;
+    }
+  }
+
+  return false;
 }

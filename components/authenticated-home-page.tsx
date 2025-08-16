@@ -15,6 +15,8 @@ import { showToast } from "@/lib/toast";
 import { signOut } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { pushNotificationService } from "@/lib/push-notifications";
+import { AllEvents } from "@/components/all-events";
+import { PastEvents } from "@/components/past-events";
 
 interface AuthenticatedHomePageProps {
   user: { id: string; email: string };
@@ -22,6 +24,7 @@ interface AuthenticatedHomePageProps {
 
 export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [showAllEvents, setShowAllEvents] = useState(false);
   const [stats, setStats] = useState({
     thisWeek: 0,
     thisMonth: 0,
@@ -197,6 +200,26 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
 
           {/* Upcoming Events */}
           <UpcomingEvents />
+
+          {/* Past Events */}
+          <PastEvents />
+
+          {/* All Events */}
+          <div className="bg-card rounded-lg border">
+            <div className="p-6 border-b">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">All Events</h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAllEvents(!showAllEvents)}
+                >
+                  {showAllEvents ? "Hide" : "Show"} All Events
+                </Button>
+              </div>
+            </div>
+            {showAllEvents && <AllEvents />}
+          </div>
         </div>
       </main>
     </div>

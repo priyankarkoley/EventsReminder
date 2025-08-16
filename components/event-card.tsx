@@ -1,7 +1,7 @@
 "use client";
 
 import type { Event } from "@/lib/types";
-import { formatDateShort, getDaysUntil } from "@/lib/date-utils";
+import { formatDate, getDaysUntil } from "@/lib/date-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -110,7 +110,7 @@ export function EventCard({ event, onEdit, onDelete }: EventCardProps) {
       <CardContent>
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            {formatDateShort(event.date)}
+            {formatDate(event.date)}
           </p>
           {event.description && (
             <p className="text-sm text-foreground">{event.description}</p>

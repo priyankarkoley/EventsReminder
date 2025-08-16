@@ -83,9 +83,14 @@ export class PushNotificationService {
       typeMessages[notificationType as keyof typeof typeMessages] || "Soon!";
 
     return this.sendNotification(`🎉 ${eventTitle}`, {
-      body: `Your event is ${message} (${new Date(
-        eventDate,
-      ).toLocaleDateString()})`,
+      body: `Your event is ${message} (${new Date(eventDate).toLocaleDateString(
+        "en-US",
+        {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        },
+      )})`,
       tag: `event-${eventTitle}`,
       requireInteraction: true,
     });
