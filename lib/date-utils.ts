@@ -1,36 +1,46 @@
 export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 };
 
 export const formatDateShort = (dateString: string): string => {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
   });
 };
 
-export const getDaysUntil = (dateString: string): number => {
+export const getDaysUntil = (
+  dateString: string,
+  recurring?: boolean
+): number => {
   const today = new Date();
   const eventDate = new Date(dateString);
-
-  // Set both dates to start of day for accurate comparison
   today.setHours(0, 0, 0, 0);
   eventDate.setHours(0, 0, 0, 0);
 
-  // If event date has passed this year, calculate for next year
-  if (eventDate < today) {
-    eventDate.setFullYear(today.getFullYear() + 1);
+  let nextOccurrence = new Date(eventDate);
+  if (recurring) {
+    nextOccurrence.setFullYear(today.getFullYear());
+    if (
+      nextOccurrence.getMonth() < today.getMonth() ||
+      (nextOccurrence.getMonth() === today.getMonth() &&
+        nextOccurrence.getDate() < today.getDate())
+    ) {
+      nextOccurrence.setFullYear(today.getFullYear() + 1);
+    }
+  } else {
+    nextOccurrence = eventDate;
   }
 
-  const diffTime = eventDate.getTime() - today.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffTime = nextOccurrence.getTime() - today.getTime();
+  return Math.round(diffTime / (1000 * 60 * 60 * 24));
 };
 
 export const isUpcoming = (dateString: string, daysAhead = 30): boolean => {

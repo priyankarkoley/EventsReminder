@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS events (
   date DATE NOT NULL,
   type TEXT NOT NULL CHECK (type IN ('birthday', 'anniversary', 'other')),
   description TEXT,
+  recurring BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

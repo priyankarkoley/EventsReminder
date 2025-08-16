@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import type { Event, EventFormData } from "@/lib/types";
-import { getEvents, updateEvent, deleteEvent } from "@/lib/events-api";
-import { isUpcoming, sortEventsByDate } from "@/lib/date-utils";
-import { EventCard } from "./event-card";
-import { EventDialog } from "./event-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "lucide-react";
-import { showToast } from "@/lib/toast";
+import { useState, useEffect } from 'react';
+import type { Event, EventFormData } from '@/lib/types';
+import { getEvents, updateEvent, deleteEvent } from '@/lib/events-api';
+import { isUpcoming, sortEventsByDate } from '@/lib/date-utils';
+import { EventCard } from './event-card';
+import { EventDialog } from './event-dialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Calendar } from 'lucide-react';
+import { showToast } from '@/lib/toast';
 
 export function UpcomingEvents() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -16,17 +16,52 @@ export function UpcomingEvents() {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
+  const getNextOccurrence = (dateStr: string, recurring: boolean) => {
+    const today = new Date();
+    const eventDate = new Date(dateStr);
+    if (!recurring) return eventDate;
+    // Set year to this year
+    let next = new Date(eventDate);
+    next.setFullYear(today.getFullYear());
+    // If already passed this year, set to next year
+    if (
+      next.getMonth() < today.getMonth() ||
+      (next.getMonth() === today.getMonth() && next.getDate() < today.getDate())
+    ) {
+      next.setFullYear(today.getFullYear() + 1);
+    }
+    return next;
+  };
+
+  const isUpcomingEvent = (event: Event) => {
+    const nextDate = getNextOccurrence(event.date, event.recurring ?? false);
+    console.log({event, nextDate})
+  const today = new Date();
+  // Zero out time for both dates
+  today.setHours(0, 0, 0, 0);
+  nextDate.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return diffDays >= 0 && diffDays <= 30;
+  };
+
+  const sortByNextOccurrence = (a: Event, b: Event) => {
+    const aDate = getNextOccurrence(a.date, a.recurring ?? false);
+    const bDate = getNextOccurrence(b.date, b.recurring ?? false);
+    return aDate.getTime() - bDate.getTime();
+  };
+
   const loadEvents = async () => {
     try {
       const allEvents = await getEvents();
-      const upcomingEvents = allEvents.filter((event) =>
-        isUpcoming(event.date),
-      );
-      const sortedEvents = sortEventsByDate(upcomingEvents);
+      console.log({allEvents})
+      const upcomingEvents = allEvents.filter(isUpcomingEvent);
+      console.log({upcomingEvents})
+      const sortedEvents = [...upcomingEvents].sort(sortByNextOccurrence);
+      console.log({sortedEvents})
       setEvents(sortedEvents);
       setLoading(false);
     } catch (error) {
-      showToast.error("Failed to load events. Please refresh the page.");
+      showToast.error('Failed to load events. Please refresh the page.');
       setLoading(false);
     }
   };
@@ -39,14 +74,14 @@ export function UpcomingEvents() {
       loadEvents();
     };
 
-    window.addEventListener("eventsChanged", handleEventsChanged);
+    window.addEventListener('eventsChanged', handleEventsChanged);
 
     // Refresh events every minute to update "days until" calculations
     const interval = setInterval(loadEvents, 60000);
 
     return () => {
       clearInterval(interval);
-      window.removeEventListener("eventsChanged", handleEventsChanged);
+      window.removeEventListener('eventsChanged', handleEventsChanged);
     };
   }, []);
 
@@ -64,14 +99,14 @@ export function UpcomingEvents() {
         loadEvents();
         setIsEditDialogOpen(false);
         setEditingEvent(null);
-        showToast.success("Your event has been successfully updated.");
+        showToast.success('Your event has been successfully updated.');
         // Trigger a refresh of other components
-        window.dispatchEvent(new CustomEvent("eventsChanged"));
+        window.dispatchEvent(new CustomEvent('eventsChanged'));
       } else {
-        showToast.error("Failed to update event. Please try again.");
+        showToast.error('Failed to update event. Please try again.');
       }
     } catch (error) {
-      showToast.error("An unexpected error occurred while updating the event.");
+      showToast.error('An unexpected error occurred while updating the event.');
     }
   };
 
@@ -80,14 +115,14 @@ export function UpcomingEvents() {
       const success = await deleteEvent(id);
       if (success) {
         loadEvents();
-        showToast.success("Your event has been successfully deleted.");
+        showToast.success('Your event has been successfully deleted.');
         // Trigger a refresh of other components
-        window.dispatchEvent(new CustomEvent("eventsChanged"));
+        window.dispatchEvent(new CustomEvent('eventsChanged'));
       } else {
-        showToast.error("Failed to delete event. Please try again.");
+        showToast.error('Failed to delete event. Please try again.');
       }
     } catch (error) {
-      showToast.error("An unexpected error occurred while deleting the event.");
+      showToast.error('An unexpected error occurred while deleting the event.');
     }
   };
 
@@ -144,7 +179,7 @@ export function UpcomingEvents() {
       </div>
 
       <EventDialog
-        event={editingEvent}
+        event={editingEvent ?? undefined}
         trigger={<div />}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}

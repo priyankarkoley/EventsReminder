@@ -82,6 +82,7 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
 
   const handleAddEvent = async (data: EventFormData) => {
     try {
+      console.log("Adding event with data:", data);
       const newEvent = await createEvent(data, data.notifications);
       if (newEvent) {
         setIsAddDialogOpen(false);

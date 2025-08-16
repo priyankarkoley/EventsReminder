@@ -27,7 +27,7 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, onEdit, onDelete }: EventCardProps) {
-  const daysUntil = getDaysUntil(event.date);
+  const daysUntil = getDaysUntil(event.date, event.recurring);
   const isToday = daysUntil === 0;
   const isPast = daysUntil < 0;
 

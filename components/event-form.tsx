@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import type React from "react";
+import type React from 'react';
 
-import { useState } from "react";
-import type { Event, EventFormData } from "@/lib/types";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from 'react';
+import type { Event, EventFormData } from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { Bell, Clock } from "lucide-react";
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { Bell, Clock } from 'lucide-react';
 
 interface EventFormProps {
   event?: Event;
@@ -33,21 +33,24 @@ export function EventForm({
   isLoading = false,
 }: EventFormProps) {
   const [formData, setFormData] = useState<EventFormData>({
-    title: event?.title || "",
-    date: event?.date || "",
-    type: event?.type || "other",
-    description: event?.description || "",
+    title: event?.title || '',
+    date: event?.date || '',
+    type: event?.type || 'other',
+    description: event?.description || '',
+    recurring: event?.recurring ?? false,
     notifications: {
       enabled: false,
       sameDay: false,
-      sameDayTime: "08:00",
+      sameDayTime: '08:00',
       dayBefore: true,
-      dayBeforeTime: "20:00",
+      dayBeforeTime: '20:00',
       weekBefore: false,
-      weekBeforeTime: "09:00",
+      weekBeforeTime: '09:00',
       browserPush: true,
     },
   });
+
+  useEffect(() => console.log('formData:', formData), [formData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,9 +60,10 @@ export function EventForm({
 
   const handleChange = (
     field: keyof EventFormData,
-    value: string | boolean,
+    value: string | boolean
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    console.log({field, value})
   };
 
   const handleNotificationChange = (field: string, value: string | boolean) => {
@@ -79,7 +83,7 @@ export function EventForm({
         <Input
           id="title"
           value={formData.title}
-          onChange={(e) => handleChange("title", e.target.value)}
+          onChange={(e) => handleChange('title', e.target.value)}
           placeholder="Birthday, Anniversary, etc."
           required
         />
@@ -91,7 +95,7 @@ export function EventForm({
           id="date"
           type="date"
           value={formData.date}
-          onChange={(e) => handleChange("date", e.target.value)}
+          onChange={(e) => handleChange('date', e.target.value)}
           required
         />
       </div>
@@ -100,8 +104,8 @@ export function EventForm({
         <Label htmlFor="type">Event Type</Label>
         <Select
           value={formData.type}
-          onValueChange={(value: "birthday" | "anniversary" | "other") =>
-            handleChange("type", value)
+          onValueChange={(value: 'birthday' | 'anniversary' | 'other') =>
+            handleChange('type', value)
           }
         >
           <SelectTrigger>
@@ -120,10 +124,20 @@ export function EventForm({
         <Textarea
           id="description"
           value={formData.description}
-          onChange={(e) => handleChange("description", e.target.value)}
+          onChange={(e) => handleChange('description', e.target.value)}
           placeholder="Add any additional details..."
           rows={3}
         />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="recurring"
+          checked={formData.recurring || false}
+          onChange={(e) => handleChange('recurring', e.target.checked)}
+        />
+        <Label htmlFor="recurring">Repeat every year (recurring event)</Label>
       </div>
 
       <Separator />
@@ -142,7 +156,7 @@ export function EventForm({
             id="notifications-enabled"
             checked={formData.notifications?.enabled || false}
             onCheckedChange={(checked) =>
-              handleNotificationChange("enabled", checked)
+              handleNotificationChange('enabled', checked)
             }
           />
         </div>
@@ -157,7 +171,7 @@ export function EventForm({
                 id="same-day"
                 checked={formData.notifications.sameDay}
                 onCheckedChange={(checked) =>
-                  handleNotificationChange("sameDay", checked)
+                  handleNotificationChange('sameDay', checked)
                 }
               />
             </div>
@@ -169,7 +183,7 @@ export function EventForm({
                   type="time"
                   value={formData.notifications.sameDayTime}
                   onChange={(e) =>
-                    handleNotificationChange("sameDayTime", e.target.value)
+                    handleNotificationChange('sameDayTime', e.target.value)
                   }
                   className="w-24"
                 />
@@ -184,7 +198,7 @@ export function EventForm({
                 id="day-before"
                 checked={formData.notifications.dayBefore}
                 onCheckedChange={(checked) =>
-                  handleNotificationChange("dayBefore", checked)
+                  handleNotificationChange('dayBefore', checked)
                 }
               />
             </div>
@@ -196,7 +210,7 @@ export function EventForm({
                   type="time"
                   value={formData.notifications.dayBeforeTime}
                   onChange={(e) =>
-                    handleNotificationChange("dayBeforeTime", e.target.value)
+                    handleNotificationChange('dayBeforeTime', e.target.value)
                   }
                   className="w-24"
                 />
@@ -211,7 +225,7 @@ export function EventForm({
                 id="week-before"
                 checked={formData.notifications.weekBefore}
                 onCheckedChange={(checked) =>
-                  handleNotificationChange("weekBefore", checked)
+                  handleNotificationChange('weekBefore', checked)
                 }
               />
             </div>
@@ -223,7 +237,7 @@ export function EventForm({
                   type="time"
                   value={formData.notifications.weekBeforeTime}
                   onChange={(e) =>
-                    handleNotificationChange("weekBeforeTime", e.target.value)
+                    handleNotificationChange('weekBeforeTime', e.target.value)
                   }
                   className="w-24"
                 />
@@ -238,7 +252,7 @@ export function EventForm({
                 id="browser-push"
                 checked={formData.notifications.browserPush}
                 onCheckedChange={(checked) =>
-                  handleNotificationChange("browserPush", checked)
+                  handleNotificationChange('browserPush', checked)
                 }
               />
             </div>
@@ -252,7 +266,7 @@ export function EventForm({
           disabled={isLoading || !formData.title.trim() || !formData.date}
           className="flex-1"
         >
-          {isLoading ? "Saving..." : event ? "Update Event" : "Add Event"}
+          {isLoading ? 'Saving...' : event ? 'Update Event' : 'Add Event'}
         </Button>
         <Button
           type="button"

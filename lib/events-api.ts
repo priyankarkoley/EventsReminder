@@ -4,17 +4,7 @@ import {
   clearEventNotifications,
   type NotificationSettings,
 } from "@/lib/notification-scheduler";
-
-export interface Event {
-  id: string;
-  title: string;
-  date: string;
-  type: "birthday" | "anniversary" | "other";
-  description?: string;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
-}
+import { Event } from "./types";
 
 export async function getEvents(): Promise<Event[]> {
   try {
@@ -70,6 +60,7 @@ export async function createEvent(
       date: event.date,
       type: event.type,
       description: event.description,
+      recurring: event.recurring || false,
       user_id: authResult.user.id,
     };
 
