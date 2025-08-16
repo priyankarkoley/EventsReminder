@@ -118,70 +118,77 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
 
       {/* Header */}
       <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 py-4 sm:py-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg">
-                <Gift className="h-6 w-6 text-primary-foreground" />
+              <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg">
+                <Gift className="h-4 w-4 sm:h-6 sm:w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Event Reminders</h1>
-                <p className="text-sm text-muted-foreground">Never miss important dates</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">Event Reminders</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground">Never miss important dates</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>{user.email}</span>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                <span className="truncate">{user.email}</span>
               </div>
-              <EventDialog
-                trigger={
-                  <Button className="flex items-center gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add Event
-                  </Button>
-                }
-                open={isAddDialogOpen}
-                onOpenChange={setIsAddDialogOpen}
-                onSubmit={handleAddEvent}
-              />
-              <Button variant="outline" onClick={handleSignOut} className="flex items-center gap-2 bg-transparent">
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Button>
+              <div className="flex gap-2">
+                <EventDialog
+                  trigger={
+                    <Button className="flex items-center gap-2 text-sm">
+                      <Plus className="h-4 w-4" />
+                      <span className="hidden sm:inline">Add Event</span>
+                      <span className="sm:hidden">Add</span>
+                    </Button>
+                  }
+                  open={isAddDialogOpen}
+                  onOpenChange={setIsAddDialogOpen}
+                  onSubmit={handleAddEvent}
+                />
+                <Button
+                  variant="outline"
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 bg-transparent text-sm"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
+      <main className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="space-y-6 sm:space-y-8">
           {/* Quick Stats */}
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="bg-card rounded-lg border p-6">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="bg-card rounded-lg border p-4 sm:p-6">
               <div className="flex items-center gap-3">
-                <Calendar className="h-8 w-8 text-blue-500" />
+                <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
                 <div>
-                  <p className="text-2xl font-bold">{stats.thisWeek}</p>
-                  <p className="text-sm text-muted-foreground">This Week</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.thisWeek}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">This Week</p>
                 </div>
               </div>
             </div>
-            <div className="bg-card rounded-lg border p-6">
+            <div className="bg-card rounded-lg border p-4 sm:p-6">
               <div className="flex items-center gap-3">
-                <Gift className="h-8 w-8 text-green-500" />
+                <Gift className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
                 <div>
-                  <p className="text-2xl font-bold">{stats.thisMonth}</p>
-                  <p className="text-sm text-muted-foreground">This Month</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.thisMonth}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">This Month</p>
                 </div>
               </div>
             </div>
-            <div className="bg-card rounded-lg border p-6">
+            <div className="bg-card rounded-lg border p-4 sm:p-6 sm:col-span-2 lg:col-span-1">
               <div className="flex items-center gap-3">
-                <Calendar className="h-8 w-8 text-purple-500" />
+                <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />
                 <div>
-                  <p className="text-2xl font-bold">{stats.total}</p>
-                  <p className="text-sm text-muted-foreground">Total Events</p>
+                  <p className="text-xl sm:text-2xl font-bold">{stats.total}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Total Events</p>
                 </div>
               </div>
             </div>

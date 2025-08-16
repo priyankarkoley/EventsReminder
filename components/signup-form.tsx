@@ -1,80 +1,75 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { useState } from "react";
-import { signUp } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import Link from "next/link";
-import { Calendar, Loader2, Eye, EyeOff } from "lucide-react";
-import { showToast } from "@/lib/toast";
+import { useState } from "react"
+import { signUp } from "@/lib/auth"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import Link from "next/link"
+import { Calendar, Loader2, Eye, EyeOff } from "lucide-react"
+import { showToast } from "@/lib/toast"
 
 export default function SignUpForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     try {
-      const { error } = await signUp(email, password);
+      const { error } = await signUp(email, password)
 
       if (error) {
-        showToast.error(error || "An error occurred during sign up");
+        showToast.error(error || "An error occurred during sign up")
       } else {
-        showToast.success(
-          "Account created! Please check your email and click the confirmation link before signing in.",
-        );
-        setEmail("");
-        setPassword("");
+        showToast.success("Account created! Please check your email and click the confirmation link before signing in.")
+        setEmail("")
+        setPassword("")
       }
     } catch (error) {
-      showToast.error("An unexpected error occurred during sign up");
+      showToast.error("An unexpected error occurred during sign up")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <div className="flex justify-center mb-4">
-          <div className="p-3 bg-purple-100 rounded-full">
-            <Calendar className="h-8 w-8 text-purple-600" />
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="text-center px-4 sm:px-6">
+        <div className="flex justify-center mb-3 sm:mb-4">
+          <div className="p-2 sm:p-3 bg-purple-100 rounded-full">
+            <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600" />
           </div>
         </div>
-        <CardTitle className="text-2xl font-bold text-gray-900">
-          Create account
-        </CardTitle>
-        <CardDescription>Sign up to start tracking your events</CardDescription>
+        <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900">Create account</CardTitle>
+        <CardDescription className="text-sm sm:text-base">Sign up to start tracking your events</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 sm:px-6">
         <form onSubmit={handleSignUp} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-sm font-medium">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
+              className="h-10 sm:h-11"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-sm font-medium">
+              Password
+            </Label>
             <div className="relative">
               <Input
                 id="password"
@@ -82,7 +77,7 @@ export default function SignUpForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="pr-10"
+                className="pr-10 h-10 sm:h-11"
                 required
               />
               <Button
@@ -100,7 +95,7 @@ export default function SignUpForm() {
               </Button>
             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full h-10 sm:h-11 text-sm sm:text-base" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -113,11 +108,11 @@ export default function SignUpForm() {
         </form>
         <div className="mt-4 text-center text-sm">
           Already have an account?{" "}
-          <Link href="/auth/login" className="text-purple-600 hover:underline">
+          <Link href="/auth/login" className="text-purple-600 hover:underline font-medium">
             Sign in
           </Link>
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
