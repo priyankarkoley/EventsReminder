@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getEvents } from "@/lib/events-api"
+import { getEvents, updateEvent, deleteEvent } from "@/lib/events-api"
 import { EventCard } from "@/components/event-card"
-import type { Event } from "@/lib/types"
+import { EventDialog } from "@/components/event-dialog"
+import type { Event, EventFormData } from "@/lib/types"
 import { Calendar, Search, ChevronDown, ChevronUp } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { showToast } from "@/lib/toast"
 
 export function AllEvents() {
   const [events, setEvents] = useState<Event[]>([])
@@ -14,6 +16,8 @@ export function AllEvents() {
   const [searchQuery, setSearchQuery] = useState("")
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([])
   const [isExpanded, setIsExpanded] = useState(false)
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
   const loadEvents = async () => {
     setLoading(true)
@@ -22,6 +26,7 @@ export function AllEvents() {
       setEvents(allEvents)
     } catch (error) {
       console.error("[v0] Error loading all events:", error)
+      showToast.error("Failed to load events. Please refresh the page.")
     } finally {
       setLoading(false)
     }
@@ -53,6 +58,45 @@ export function AllEvents() {
       window.removeEventListener("eventsChanged", handleEventsChanged)
     }
   }, [])
+
+  const handleEdit = (event: Event) => {
+    setEditingEvent(event)
+    setIsEditDialogOpen(true)
+  }
+
+  const handleEditSubmit = async (data: EventFormData) => {
+    if (!editingEvent) return
+
+    try {
+      const updatedEvent = await updateEvent(editingEvent.id, data)
+      if (updatedEvent) {
+        loadEvents()
+        setIsEditDialogOpen(false)
+        setEditingEvent(null)
+        showToast.success("Your event has been successfully updated.")
+        window.dispatchEvent(new CustomEvent("eventsChanged"))
+      } else {
+        showToast.error("Failed to update event. Please try again.")
+      }
+    } catch (error) {
+      showToast.error("An unexpected error occurred while updating the event.")
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    try {
+      const success = await deleteEvent(id)
+      if (success) {
+        loadEvents()
+        showToast.success("Your event has been successfully deleted.")
+        window.dispatchEvent(new CustomEvent("eventsChanged"))
+      } else {
+        showToast.error("Failed to delete event. Please try again.")
+      }
+    } catch (error) {
+      showToast.error("An unexpected error occurred while deleting the event.")
+    }
+  }
 
   if (loading) {
     return (
@@ -116,10 +160,18 @@ export function AllEvents() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard key={event.id} event={event} onEdit={handleEdit} onDelete={handleDelete} />
               ))}
             </div>
           )}
+
+          <EventDialog
+            event={editingEvent ?? undefined}
+            trigger={<div />}
+            open={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+            onSubmit={handleEditSubmit}
+          />
         </>
       )}
     </div>
