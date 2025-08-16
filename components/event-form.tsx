@@ -182,7 +182,7 @@ export function EventForm({
                   onChange={(e) =>
                     handleNotificationChange("sameDayTime", e.target.value)
                   }
-                  className="w-24"
+                  className="w-fit"
                 />
               </div>
             )}
@@ -209,7 +209,7 @@ export function EventForm({
                   onChange={(e) =>
                     handleNotificationChange("dayBeforeTime", e.target.value)
                   }
-                  className="w-24"
+                  className="w-fit"
                 />
               </div>
             )}
@@ -236,7 +236,7 @@ export function EventForm({
                   onChange={(e) =>
                     handleNotificationChange("weekBeforeTime", e.target.value)
                   }
-                  className="w-24"
+                  className="w-fit"
                 />
               </div>
             )}
