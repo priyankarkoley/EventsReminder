@@ -4,7 +4,7 @@ import {
   clearEventNotifications,
   type NotificationSettings,
 } from "@/lib/notification-scheduler";
-import { Event } from "./types";
+import type { Event } from "./types";
 
 export async function getEvents(): Promise<Event[]> {
   try {
@@ -13,7 +13,8 @@ export async function getEvents(): Promise<Event[]> {
       return [];
     }
 
-    const response = await fetch(
+    // Fetch events
+    const eventsResponse = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/events?select=*&order=date.asc`,
       {
         headers: {
@@ -24,21 +25,97 @@ export async function getEvents(): Promise<Event[]> {
       },
     );
 
-    if (!response.ok) {
+    if (!eventsResponse.ok) {
       console.error(
         "[v0] Error fetching events:",
-        response.status,
-        response.statusText,
+        eventsResponse.status,
+        eventsResponse.statusText,
       );
-      const errorText = await response.text();
-
       return [];
     }
 
-    const data = await response.json();
+    const events = await eventsResponse.json();
 
-    return data || [];
+    // Fetch user's notification preferences
+    const preferencesResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/notification_preferences?user_id=eq.${authResult.user.id}`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${authResult.access_token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    let userPreferences = null;
+    if (preferencesResponse.ok) {
+      const preferencesData = await preferencesResponse.json();
+      userPreferences = preferencesData[0];
+    }
+
+    // Fetch scheduled notifications for all events
+    const notificationsResponse = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/notification_queue?user_id=eq.${authResult.user.id}&status=eq.pending`,
+      {
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${authResult.access_token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    let scheduledNotifications: any[] = [];
+    if (notificationsResponse.ok) {
+      scheduledNotifications = await notificationsResponse.json();
+    }
+
+    // Combine events with notification settings
+    const eventsWithNotifications = events.map((event: any) => {
+      const eventNotifications = scheduledNotifications.filter(
+        (n) => n.event_id === event.id,
+      );
+
+      // Determine notification settings based on scheduled notifications
+      const hasNotifications = eventNotifications.length > 0;
+      const hasSameDay = eventNotifications.some(
+        (n) => n.notification_type === "same_day",
+      );
+      const hasDayBefore = eventNotifications.some(
+        (n) => n.notification_type === "day_before",
+      );
+      const hasWeekBefore = eventNotifications.some(
+        (n) => n.notification_type === "week_before",
+      );
+
+      // Use user preferences as defaults if no scheduled notifications exist
+      const notifications = {
+        enabled:
+          hasNotifications ||
+          userPreferences?.notify_same_day ||
+          userPreferences?.notify_day_before ||
+          userPreferences?.notify_week_before ||
+          false,
+        sameDay: hasSameDay || userPreferences?.notify_same_day || false,
+        sameDayTime: userPreferences?.same_day_time || "08:00",
+        dayBefore: hasDayBefore || userPreferences?.notify_day_before || true,
+        dayBeforeTime: userPreferences?.day_before_time || "20:00",
+        weekBefore:
+          hasWeekBefore || userPreferences?.notify_week_before || false,
+        weekBeforeTime: userPreferences?.week_before_time || "09:00",
+        browserPush: userPreferences?.browser_push_enabled || true,
+      };
+
+      return {
+        ...event,
+        notifications,
+      };
+    });
+
+    return eventsWithNotifications || [];
   } catch (error) {
+    console.error("[v0] Error in getEvents:", error);
     return [];
   }
 }

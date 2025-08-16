@@ -8,6 +8,16 @@ export interface Event {
   recurring?: boolean;
   created_at: string;
   updated_at: string;
+  notifications?: {
+    enabled: boolean;
+    sameDay: boolean;
+    sameDayTime: string;
+    dayBefore: boolean;
+    dayBeforeTime: string;
+    weekBefore: boolean;
+    weekBeforeTime: string;
+    browserPush: boolean;
+  };
 }
 
 export interface EventFormData {

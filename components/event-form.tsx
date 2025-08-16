@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Event, EventFormData } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +38,7 @@ export function EventForm({
     type: event?.type || "other",
     description: event?.description || "",
     recurring: event?.recurring ?? false,
-    notifications: {
+    notifications: event?.notifications || {
       enabled: false,
       sameDay: false,
       sameDayTime: "08:00",
