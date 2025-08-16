@@ -123,7 +123,6 @@ export async function scheduleNotifications(
     );
 
     if (!response.ok) {
-      console.error("Error scheduling notifications:", response.statusText);
       return false;
     }
 
@@ -135,7 +134,6 @@ export async function scheduleNotifications(
     );
     return true;
   } catch (error) {
-    console.error("Error scheduling notifications:", error);
     return false;
   }
 }
@@ -161,13 +159,11 @@ export async function clearEventNotifications(
     );
 
     if (!response.ok) {
-      console.error("Error clearing notifications:", response.statusText);
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error("Error clearing notifications:", error);
     return false;
   }
 }
@@ -203,7 +199,6 @@ export async function getPendingNotifications(): Promise<
     const data = await response.json();
     return data || [];
   } catch (error) {
-    console.error("Error fetching pending notifications:", error);
     return [];
   }
 }
@@ -234,7 +229,6 @@ export async function markNotificationSent(
 
     return response.ok;
   } catch (error) {
-    console.error("Error marking notification as sent:", error);
     return false;
   }
 }

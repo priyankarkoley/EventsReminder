@@ -27,9 +27,7 @@ export function NotificationBanner() {
 
         // Show banner if there are events today or if notifications are not enabled
         setShowBanner((today.length > 0 || !permission.granted) && !dismissed);
-      } catch (error) {
-        console.error("Failed to load events for notification banner:", error);
-      }
+      } catch (error) {}
     };
 
     checkTodayEvents();

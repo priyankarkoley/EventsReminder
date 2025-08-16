@@ -57,9 +57,7 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
       if (pushNotificationService.isSupported()) {
         const granted = await pushNotificationService.requestPermission();
         if (granted) {
-          console.log("[v0] Push notifications enabled");
         } else {
-          console.log("[v0] Push notifications denied");
         }
       }
     };
@@ -82,7 +80,6 @@ export function AuthenticatedHomePage({ user }: AuthenticatedHomePageProps) {
 
   const handleAddEvent = async (data: EventFormData) => {
     try {
-      console.log("Adding event with data:", data);
       const newEvent = await createEvent(data, data.notifications);
       if (newEvent) {
         setIsAddDialogOpen(false);

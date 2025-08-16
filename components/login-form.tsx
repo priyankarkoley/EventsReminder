@@ -37,8 +37,6 @@ export default function LoginForm() {
       );
 
       if (error) {
-        console.log("[v0] Login error:", error);
-
         if (
           error.includes("email_not_confirmed") ||
           error.includes("Email not confirmed")
@@ -58,7 +56,6 @@ export default function LoginForm() {
         router.refresh();
       }
     } catch (error) {
-      console.log("[v0] Unexpected login error:", error);
       showToast.error("An unexpected error occurred during login");
     } finally {
       setLoading(false);

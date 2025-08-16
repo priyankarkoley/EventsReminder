@@ -17,7 +17,6 @@ export class PushNotificationService {
 
   async requestPermission(): Promise<boolean> {
     if (typeof window === "undefined" || !("Notification" in window)) {
-      console.log("[v0] Notifications not supported in this browser");
       return false;
     }
 
@@ -26,7 +25,6 @@ export class PushNotificationService {
     }
 
     if (this.permission === "denied") {
-      console.log("[v0] Notification permission denied");
       return false;
     }
 
@@ -35,7 +33,6 @@ export class PushNotificationService {
       this.permission = permission;
       return permission === "granted";
     } catch (error) {
-      console.error("[v0] Error requesting notification permission:", error);
       return false;
     }
   }
@@ -67,7 +64,6 @@ export class PushNotificationService {
 
       return true;
     } catch (error) {
-      console.error("[v0] Error sending notification:", error);
       return false;
     }
   }
@@ -87,7 +83,9 @@ export class PushNotificationService {
       typeMessages[notificationType as keyof typeof typeMessages] || "Soon!";
 
     return this.sendNotification(`🎉 ${eventTitle}`, {
-      body: `Your event is ${message} (${new Date(eventDate).toLocaleDateString()})`,
+      body: `Your event is ${message} (${new Date(
+        eventDate,
+      ).toLocaleDateString()})`,
       tag: `event-${eventTitle}`,
       requireInteraction: true,
     });

@@ -9,7 +9,6 @@ export const getEvents = (): Event[] => {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];
   } catch (error) {
-    console.error("Error loading events:", error);
     return [];
   }
 };
@@ -19,9 +18,7 @@ export const saveEvents = (events: Event[]): void => {
 
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
-  } catch (error) {
-    console.error("Error saving events:", error);
-  }
+  } catch (error) {}
 };
 
 export const addEvent = (eventData: Omit<Event, "id" | "createdAt">): Event => {

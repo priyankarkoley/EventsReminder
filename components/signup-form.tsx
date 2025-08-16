@@ -32,7 +32,6 @@ export default function SignUpForm() {
       const { error } = await signUp(email, password);
 
       if (error) {
-        console.log("[v0] Signup error:", error);
         showToast.error(error || "An error occurred during sign up");
       } else {
         showToast.success(
@@ -42,7 +41,6 @@ export default function SignUpForm() {
         setPassword("");
       }
     } catch (error) {
-      console.log("[v0] Unexpected signup error:", error);
       showToast.error("An unexpected error occurred during sign up");
     } finally {
       setLoading(false);

@@ -17,28 +17,20 @@ export function NotificationBackgroundService() {
     isProcessingRef.current = true;
 
     try {
-      console.log("[v0] Checking for pending notifications...");
       const pendingNotifications = await getPendingNotifications();
 
       if (pendingNotifications.length === 0) {
-        console.log("[v0] No pending notifications found");
         return;
       }
-
-      console.log(
-        `[v0] Found ${pendingNotifications.length} pending notifications`,
-      );
 
       for (const notification of pendingNotifications) {
         try {
           // Check if browser notifications are supported and permitted
           if (!pushNotificationService.isSupported()) {
-            console.log("[v0] Browser notifications not supported");
             continue;
           }
 
           if (!pushNotificationService.hasPermission()) {
-            console.log("[v0] No notification permission");
             continue;
           }
 
@@ -54,24 +46,12 @@ export function NotificationBackgroundService() {
             if (success) {
               // Mark as sent in database
               await markNotificationSent(notification.id!);
-              console.log(
-                `[v0] Sent notification for event: ${eventData.title}`,
-              );
             } else {
-              console.error(
-                `[v0] Failed to send notification for event: ${eventData.title}`,
-              );
             }
           }
-        } catch (error) {
-          console.error(
-            "[v0] Error processing individual notification:",
-            error,
-          );
-        }
+        } catch (error) {}
       }
     } catch (error) {
-      console.error("[v0] Error processing notifications:", error);
     } finally {
       isProcessingRef.current = false;
     }
@@ -79,7 +59,6 @@ export function NotificationBackgroundService() {
 
   useEffect(() => {
     // Start the background service
-    console.log("[v0] Starting notification background service...");
 
     // Process immediately on mount
     processNotifications();
@@ -93,7 +72,6 @@ export function NotificationBackgroundService() {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      console.log("[v0] Notification background service stopped");
     };
   }, []);
 
